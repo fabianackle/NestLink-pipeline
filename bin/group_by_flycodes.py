@@ -156,12 +156,9 @@ def write_csv(references_dict, reads_dict):
     df_reads.to_csv('reads.csv', index=False)
 
 
-def main(centroids, clusters, sequences, reference, outdir):
+def main(centroids, clusters, outdir):
     cluster_ids = parse_centroids_file(centroids, 10)
     references_dict, reads_dict = read_clusters(clusters, cluster_ids)
-    binned_reads = bin_reads_by_flycodes(sequences, reads_dict)
-    write_binned_reads(outdir, binned_reads)
-    write_reference_files(outdir, reference, references_dict)
     write_csv(references_dict, reads_dict)
 
 
@@ -169,9 +166,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--centroids", type=str)
     parser.add_argument("--clusters", type=str)
-    parser.add_argument("--sequences", type=str)
-    parser.add_argument("--reference", type=str)
     parser.add_argument("--outdir", type=str)
 
     args = parser.parse_args()
-    main(args.centroids, args.clusters, args.sequences, args.reference, args.outdir)
+    main(args.centroids, args.clusters, args.outdir)
