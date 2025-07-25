@@ -158,7 +158,7 @@ def write_references(clusters_df, reference_seq, reference_flycode):
     records = []  # for storing all cluster records.
 
     # Writing individual reference files for each cluster.
-    for cluster_id, flycode in clusters_df.rows():
+    for cluster_id, flycode, _ in clusters_df.rows():
         file_name = f"references/{cluster_id}.fasta"
         reference_sequence = f"{reference[0]}{flycode}{reference[1]}"
         record = dnaio.SequenceRecord(cluster_id, reference_sequence)
@@ -188,7 +188,7 @@ def main(sample_id, flycodes, sequences, reference_seq, reference_flycode):
     flycodes_df = flycodes_to_dataframe(flycodes)
 
     # Add a new column with True/False indicating a valid flycode.
-    valid_flycode = r"^GGTAGT(GCA|GTT|GAT|CCA|GAA|ACT|GGT|TCT|TAC|CTG|TGG|CAG|TTC|AAC){6,8}(TGGCGG|TGGCTGCGG|TGGCAGTCTCGG|TGGCAGGAAGGAGGTCGG)$"
+    valid_flycode = r"([ATGC]{3}[AT][GC]){6}[ATGC]{3}"
     flycodes_df = flycodes_df.with_columns(
         pl.col("flycode").str.contains(valid_flycode).alias("is_valid_flycode")
     )
@@ -199,7 +199,8 @@ def main(sample_id, flycodes, sequences, reference_seq, reference_flycode):
         """
         SELECT 
             gen_random_uuid() AS cluster_id, 
-            flycode
+            flycode,
+            Count(flycode) AS count
         FROM 
             flycodes_df
         WHERE 
@@ -214,7 +215,7 @@ def main(sample_id, flycodes, sequences, reference_seq, reference_flycode):
 
     # Writing the high-quality flycodes into clusters.fasta to be used as a reference for alignment.
     with dnaio.open("clusters.fasta", mode="w") as writer:
-        for cluster_id, sequence in clusters_df.rows():
+        for cluster_id, sequence, _ in clusters_df.rows():
             writer.write(dnaio.SequenceRecord(cluster_id, sequence))
 
     # Indexing the reference.

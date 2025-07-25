@@ -2,6 +2,6 @@
 
 nextflow run main.nf \
     -profile standard \
-    -params-file kdelr.json \
+    -params-file MsbA.json \
     -resume \
     -with-report \

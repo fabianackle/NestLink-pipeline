@@ -1,0 +1,12 @@
+{
+    "data": "data/MsbA_bc01_025.bam",
+    "reference": "data/id-v-18-pdms3_msbA_BC.fasta",
+    "reference_flycode": "NNNWSNNNWSNNNWSNNNWSNNNWSNNNWSNNN",
+    "filter_min_length": 7200,
+    "filter_max_length": 7500,
+    "extract_flycode_adapter": "TCAGGAtccgtcttc...CAATATATTAAATTA",
+    "medaka_dorado_model": "r1041_e82_400bps_sup_v5.2.0",
+    "flycode_pattern": ["Atccgtcttc", "CAATATATTA"],
+    "orf_pattern": ["agtATGCAT", "GGtcgtGCAT"],
+    "outdir": "results"
+}

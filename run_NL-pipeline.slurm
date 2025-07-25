@@ -13,7 +13,7 @@ conda activate nextflow
 
 nextflow run main.nf \
     -profile cluster \
-    -params-file params.json \
+    -params-file MsbA.json \
     -resume \
     -with-report \
     -with-timeline \

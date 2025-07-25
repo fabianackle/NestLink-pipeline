@@ -19,7 +19,7 @@ process EXTRACT_FLYCODES {
         -j $task.cpus \
         -g $params.extract_flycode_adapter \
         --error-rate 0.1 \
-        --minimum-length 30 --maximum-length 50 \
+        --minimum-length 30 --maximum-length 36 \
         --discard-untrimmed \
         --fasta ${fastq_gz} > ${sample_id}_flycodes_fwd.fasta
 
@@ -27,7 +27,7 @@ process EXTRACT_FLYCODES {
         -j $task.cpus \
         -g \$extract_flycode_adapter_rc \
         --error-rate 0.1 \
-        --minimum-length 30 --maximum-length 50 \
+        --minimum-length 30 --maximum-length 36 \
         --discard-untrimmed \
         --fasta ${fastq_gz} > ${sample_id}_flycodes_rc.fasta
 
