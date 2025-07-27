@@ -1,7 +1,9 @@
 process MEDAKA_CONSENSUS {
     cpus 8
     memory '16 GB'
-    time '120m'
+    time {'60m * task.attempt'}
+    errorStrategy 'retry'
+    maxRetries 2
     clusterOptions '--gpus=1'
     tag "${sample_id}"
 
