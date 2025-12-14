@@ -7,11 +7,12 @@
 ##SBATCH --mail-type=BEGIN,END 
 
 module load miniforge3
+module load apptainer
 eval "$(conda shell.bash hook)"
 conda activate nextflow
 
 nextflow run main.nf \
-    -profile cluster \
+    -profile s3it,apptainer \
     -params-file params.json \
     -resume \
     -with-report \
