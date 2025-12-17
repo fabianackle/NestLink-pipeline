@@ -32,7 +32,7 @@ def barcodes_to_dataframe(file_path):
     return pl.DataFrame(data)
 
 
-def map_barcodes_to_clusters(file_path):
+def map_barcodes_to_clusters(file_path, data=[]):
     """
     Parse a SAM file of barcodes aligned to high-quality barcodes (clusters) into a polars DataFrame mapping read IDs to cluster IDs.
 
@@ -42,8 +42,6 @@ def map_barcodes_to_clusters(file_path):
     Returns:
         pl.DataFrame: A DataFrame with 'read_id', 'cluster_id', 'cigar' and 'edit_distance' columns.
     """
-    data = []
-
     with open(file_path, "r") as f:
         for line in f:
             # Skip header lines
@@ -97,7 +95,7 @@ def write_references(clusters_df, reference_seq):
         reference_sequence = reference_record.sequence
 
     records = []  # for storing all cluster records.
-    for cluster_id, _ in clusters_df.rows():
+    for cluster_id in clusters_df.get_column("cluster_id").unique():
         record = dnaio.SequenceRecord(cluster_id, reference_sequence)
         records.append(record)
 
@@ -142,24 +140,35 @@ def main(sample_id:str, reference_seq:str, barcodes:str, barcode_min_coverage:in
     ).pl()
     clusters_df.write_csv(f"{sample_id}_clusters.csv")
 
+    high_quality_barcodes = {sequence:cluster_id for cluster_id, sequence in clusters_df.rows()}
+
     # Writing the high-quality barcodes into clusters.fasta to be used as a reference for alignment.
     with dnaio.open("clusters.fasta", mode="w") as writer:
-        for cluster_id, sequence in clusters_df.rows():
+        for sequence, cluster_id in high_quality_barcodes.items():
             writer.write(dnaio.SequenceRecord(cluster_id, sequence))
 
-    # Indexing the reference.
+    # Writing the low-quality barcodes into low_quality.fasta to be aligned to the high-quality barcodes.
+    mapped_hq_barcodes = []
+    with dnaio.open(f"{sample_id}_low_quality.fasta", mode="w") as writer:
+        for read_id, barcode, _ in barcodes_df.rows():
+            if barcode in high_quality_barcodes:
+                mapped_hq_barcodes.append({"read_id": read_id, "cluster_id": high_quality_barcodes[barcode], "cigar": f'{len(barcode)}M', "edit_distance": 0})
+            else:
+                writer.write(dnaio.SequenceRecord(read_id, barcode))
+
+    # Indexing the clusters.
     subprocess.run(["bwa", "index", "clusters.fasta"], check=True)
 
-    # Aligning all barcodes to the reference.
+    # Aligning low-quality barcodes to the clusters.
     with open("barcodes_to_clusters.sai", "w") as sai_file:
-        subprocess.run(["bwa", "aln", "-t", str(threads), "-N", "-n 2", "clusters.fasta", barcodes], stdout=sai_file, check=True)
+        subprocess.run(["bwa", "aln", "-t", str(threads), "-N", "-n 2", "clusters.fasta", f"{sample_id}_low_quality.fasta"], stdout=sai_file, check=True)
 
     # Generating alignments in the SAM format,
     with open("barcodes_to_clusters.sam", "w") as sam_file:
-        subprocess.run(["bwa", "samse", "clusters.fasta", "barcodes_to_clusters.sai", barcodes], stdout=sam_file, check=True)
+        subprocess.run(["bwa", "samse", "clusters.fasta", "barcodes_to_clusters.sai", f"{sample_id}_low_quality.fasta"], stdout=sam_file, check=True)
 
     # Mapping barcodes to their clusters.
-    mapped_barcodes_df = map_barcodes_to_clusters("barcodes_to_clusters.sam")
+    mapped_barcodes_df = map_barcodes_to_clusters("barcodes_to_clusters.sam", data=mapped_hq_barcodes)
     mapped_barcodes_df.write_csv(f"{sample_id}_mapped_reads.csv")
 
     # Filtering mapped_barcodes_df to only contain up to 100 reads with low edit distance barcodes per cluster.
@@ -189,7 +198,7 @@ def main(sample_id:str, reference_seq:str, barcodes:str, barcode_min_coverage:in
     mapped_barcodes_df.write_csv(f"{sample_id}_mapped_reads_filtered.csv")
 
     # Writing references to disk.
-    write_references(clusters_df, reference_seq)
+    write_references(mapped_barcodes_df, reference_seq)
 
 if __name__ == "__main__":
     # Reading arguments and calling the main function.

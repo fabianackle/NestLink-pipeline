@@ -14,6 +14,10 @@ process DORADO_CONSENSUS {
     dorado polish ${bam} ${reference} \
         --qualities \
         --ignore-read-groups \
+        --batchsize 250 \
+        --infer-threads ${ task.cpus.intdiv(2) } \
+        --threads ${task.cpus} \
+        --bacteria \
         > ${sample_id}_polished.fastq
 
     gzip ${sample_id}_polished.fastq   
