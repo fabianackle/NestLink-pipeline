@@ -2,6 +2,6 @@
 
 nextflow run main.nf \
     -params-file kdelr.json \
-    -profile conda
-    -resume \
+    -profile conda \
     -with-report \
+    -with-timeline
