@@ -1,5 +1,9 @@
 process FILTER_READS {
     conda "bioconda::filtlong=0.3.1 conda-forge::pigz=2.8"
+    container "${ workflow.containerEngine == 'apptainer' ?
+        'oras://community.wave.seqera.io/library/filtlong_pigz:fab2e27db205f4da' :
+        'community.wave.seqera.io/library/filtlong_pigz:a11566667039b4fe' }"
+
     tag "${sample_id}"
 
     input:

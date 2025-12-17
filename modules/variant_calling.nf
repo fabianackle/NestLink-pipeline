@@ -1,5 +1,9 @@
 process VARIANT_CALLING {
     conda "bioconda::dnaio=1.2.3 conda-forge::biopython=1.86 conda-forge::polars=1.35.1"
+    container "${ workflow.containerEngine == 'apptainer' ?
+        'oras://community.wave.seqera.io/library/dnaio_biopython_polars:5360dacc1ce2d582' :
+        'community.wave.seqera.io/library/dnaio_biopython_polars:37311fda0fb941b3' }"
+
     tag "${sample_id}"
 
     publishDir params.outdir, mode: 'copy', pattern: '*.txt.gz'

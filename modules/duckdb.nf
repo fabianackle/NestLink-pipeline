@@ -1,5 +1,9 @@
 process DUCKDB {
     conda "conda-forge::duckdb-cli=1.4.1"
+    container "${ workflow.containerEngine == 'apptainer' ?
+        'oras://community.wave.seqera.io/library/duckdb-cli:1.4.1--666aeb32eabd82a9' :
+        'community.wave.seqera.io/library/duckdb-cli:1.4.1--d924e68d63392ee0' }"
+
     tag "${sample_id}"
 
     publishDir params.outdir, mode: 'copy'

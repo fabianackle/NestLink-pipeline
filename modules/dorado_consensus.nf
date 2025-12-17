@@ -1,4 +1,6 @@
 process DORADO_CONSENSUS {
+    container "nanoporetech/dorado:shaf2aed69855de85e60b363c9be39558ef469ec365"
+
     tag "${sample_id}"
 
     publishDir params.outdir, mode: 'copy', pattern: '*.fastq.gz'

@@ -1,5 +1,9 @@
 process REMAP_BAM {
     conda "bioconda::dnaio=1.2.3 bioconda::pysam=0.23.3 bioconda::samtools=1.22.1"
+    container "${ workflow.containerEngine == 'apptainer' ?
+        'oras://community.wave.seqera.io/library/dnaio_pysam_samtools:19e11ea6ed78be12' :
+        'community.wave.seqera.io/library/dnaio_pysam_samtools:b619b880eeab0208' }"
+
     tag "${sample_id}"
 
     input:

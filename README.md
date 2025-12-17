@@ -5,23 +5,37 @@ Reads are binned according to their barcodes or flycodes (UMIs).
 Accurate consensus sequences are calculated using Dorado polish.
 Finally, variants are called with the pipeline, linking barcodes or flycodes with their respective protein variants.
 
+> [!NOTE]
+> Tested on macOS 15.7 (Mamba), Windows 11 (WSL with Docker), and Ubuntu 22.04 (Mamba, Apptainer).
+
 ## Requirements
-### Local and cluster execution
-- Nextflow ([Installation guide](https://www.nextflow.io/docs/latest/install.html)), on the cluster it has to be installed in a mamba/ conda environment called `nextflow`. 
-- Mamba/ Conda ([https://conda-forge.org/](https://conda-forge.org/))
-- Dorado ([Installation guide](https://software-docs.nanoporetech.com/dorado/latest/#installation)).
-### Cluster execution only
+### Local execution
+
+- Nextflow ([Installation guide](https://www.nextflow.io/docs/latest/install.html)).
+- Mamba/ Conda ([https://conda-forge.org/](https://conda-forge.org/)) or Docker
+- Dorado ([Installation guide](https://software-docs.nanoporetech.com/dorado/latest/#installation)), does not have to be installed when using containers.
+
+### Cluster execution
+
 - Slurm workflow manager
+- Nextflow, installed in a Mamba/ Conda environment called `nextflow`. 
+- Mamba/ Conda or Apptainer
+- Dorado
+
 > [!TIP]
 > Add dorado to your PATH e.g. by adding `export PATH="$PATH:/home/fackle/data/dorado-1.2.0-linux-x64/bin"` to your `.bashrc`.
 
 ## Running the pipeline
 
 1. Clone the repository with `git clone https://github.com/fabianackle/NestLink-pipeline.git`.
-2. Create a `params.json` file with the parameters listed below, specify the nanopore reads (BAM) and reference sequence, see the examples contained in this repo.
-3. Run the pipeline with either `./run_NL-pipeline.sh` for local execution or on a cluster with `sbatch run_NL-pipeline.slurm`.
+2. Check the nextflow configuration file `nextflow.config`.
+3. Create a `params.json` file with the parameters listed below, specify the nanopore reads (BAM) and reference sequence, see the examples contained in this repo.
+4. Run the pipeline with either `./run_NL-pipeline.sh` for local execution or on a cluster with `sbatch run_NL-pipeline.slurm`.
 
-## Parameters
+> [!TIP]
+> The pipeline can also be run directly: `nextflow run main.nf -profile conda -params-file params.json`.
+
+# Parameters
 
 | Parameter                 | Type                 | Description                                                                         |
 |---------------------------|----------------------|-------------------------------------------------------------------------------------|
