@@ -47,6 +47,7 @@ Finally, variants are called with the pipeline, linking barcodes or flycodes wit
 | `extract_barcode_adapter` | String               | Linked cutadapt adapter for barcode extraction.†2                                   |
 | `barcode_regex`           | String               | Regular expression matching the barcode.                                            |
 | `barcode_min_coverage`    | Integer              | The minimal amount a barcode has to be seen to be considered a high-quality barcode.|
+| `polish_bacteria`         | Boolean              | Use a bacterial model for polishing with dorado (optional).†3                       |
 | `barcode_5p`              | String               | 5' sequence flanking the barcode.                                                   |
 | `barcode_3p`              | String               | 3' sequence flanking the barcode.                                                   |
 | `orf_5p`                  | String               | 5' sequence flanking the ORF.                                                       |
@@ -56,3 +57,4 @@ Finally, variants are called with the pipeline, linking barcodes or flycodes wit
 
 † for multiple BAM files use `*`, e.g. `data/barcode*.bam`.
 †2 see [Linked adapters (combined 5’ and 3’ adapter)](https://cutadapt.readthedocs.io/en/stable/guide.html#linked-adapters).
+†3 do not use if you want to use move tables, as currently there are no models that support both.

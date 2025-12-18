@@ -89,6 +89,18 @@
         "barcode_min_coverage"
       ]
     },
+    "dorado_options": {
+      "title": "Dorado options",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "polish_bacteria": {
+          "type": "boolean",
+          "description": "Use a bacterial polishing model."
+        }
+      }
+    },
     "variant_calling_options": {
       "title": "Variant calling options",
       "type": "object",
@@ -143,6 +155,9 @@
     },
     {
       "$ref": "#/$defs/barcode_options"
+    },
+    {
+      "$ref": "#/$defs/dorado_options"
     },
     {
       "$ref": "#/$defs/variant_calling_options"

@@ -19,7 +19,7 @@ process DORADO_CONSENSUS {
         --batchsize 250 \
         --infer-threads ${ task.cpus.intdiv(2) } \
         --threads ${task.cpus} \
-        --bacteria \
+        ${params.polish_bacteria ? '--bacteria' : ''} \
         > ${sample_id}_polished.fastq
 
     gzip ${sample_id}_polished.fastq   

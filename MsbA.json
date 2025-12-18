@@ -7,6 +7,7 @@
     "extract_barcode_adapter": "TCAGGAtccgtcttc...CAATATATTAAATTA",
     "barcode_regex": "^([ATGC]{3}[AT][GC]){6}[ATGC]{3}$",
     "barcode_min_coverage": 10,
+    "polish_bacteria": true,
     "barcode_5p": "Atccgtcttc",
     "barcode_3p": "CAATATATTA",
     "orf_5p": "agtATGCAT",
