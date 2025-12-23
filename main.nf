@@ -1,19 +1,20 @@
 #!/usr/bin/env nextflow
 
 /* Validation */
-include { validateParameters } from 'plugin/nf-schema'
-include { paramsSummaryLog } from 'plugin/nf-schema'
+include { validateParameters  } from 'plugin/nf-schema'
+include { paramsSummaryLog    } from 'plugin/nf-schema'
 
 /* Modules */
-include { BAM_TO_FASTQ      } from './modules/bam_to_fastq.nf'
-include { DORADO_ALIGNER    } from './modules/dorado_aligner.nf'
-include { FILTER_READS      } from './modules/filter_reads.nf'
-include { EXTRACT_BARCODES  } from './modules/extract_barcodes.nf'
-include { GROUP_BY_BARCODES } from './modules/group_by_barcodes.nf'
-include { REMAP_BAM         } from './modules/remap_bam.nf'
-include { DORADO_CONSENSUS  } from './modules/dorado_consensus.nf'
-include { VARIANT_CALLING   } from './modules/variant_calling.nf'
-include { DUCKDB            } from './modules/duckdb.nf'
+include { BAM_TO_FASTQ        } from './modules/bam_to_fastq.nf'
+include { DORADO_ALIGNER      } from './modules/dorado_aligner.nf'
+include { FILTER_READS        } from './modules/filter_reads.nf'
+include { EXTRACT_BARCODES    } from './modules/extract_barcodes.nf'
+include { GROUP_BY_BARCODES   } from './modules/group_by_barcodes.nf'
+include { REMAP_BAM           } from './modules/remap_bam.nf'
+include { DORADO_CONSENSUS    } from './modules/dorado_consensus.nf'
+include { VARIANT_CALLING     } from './modules/variant_calling.nf'
+include { CONSEQUENCE_CALLING } from './modules/consequence_calling.nf'
+include { DUCKDB              } from './modules/duckdb.nf'
 
 /* Workflows */
 workflow {
@@ -27,7 +28,7 @@ workflow {
     )
 
     validateParameters()
-    log.info paramsSummaryLog(workflow)
+    log.info(paramsSummaryLog(workflow))
 
     basecalled_ch = channel.fromPath(params.data, checkIfExists: true).map { file -> tuple(file.baseName, file) }
     reference_ch = channel.fromPath(params.reference, checkIfExists: true)
@@ -59,6 +60,9 @@ workflow consensus {
 
     variant_ch = DORADO_CONSENSUS.out.consensus.combine(reference_ch)
     VARIANT_CALLING(variant_ch)
+
+    consquence_ch = DORADO_CONSENSUS.out.variants.join(GROUP_BY_BARCODES.out.references)
+    CONSEQUENCE_CALLING(consquence_ch)
 
     duck_ch = GROUP_BY_BARCODES.out.csv.join(VARIANT_CALLING.out.variants_db)
     DUCKDB(duck_ch)

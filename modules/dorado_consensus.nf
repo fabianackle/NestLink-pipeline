@@ -10,6 +10,7 @@ process DORADO_CONSENSUS {
 
     output:
     tuple val(sample_id), path("${sample_id}_consensus.fastq.gz"), emit: consensus
+    tuple val(sample_id), path("${sample_id}_variants.vcf"), emit: variants
 
     script:
     """
