@@ -10,9 +10,9 @@ process GROUP_BY_BARCODES {
     tuple val(sample_id), path(barcodes), path(reference)
 
     output:
-    tuple val(sample_id), path("references.fasta"), emit: references
+    tuple val(sample_id), path("${sample_id}_references.fasta"), emit: references
     tuple val(sample_id), path("${sample_id}_mapped_reads_filtered.csv"), emit: barcode_map
-    tuple val(sample_id), path("${sample_id}_reads.csv"), path("${sample_id}_clusters.csv"), path("${sample_id}_mapped_reads.csv"), path("${sample_id}_mapped_reads_filtered.csv"), emit: csv
+    tuple val(sample_id), path("${sample_id}_reads.csv"), path("${sample_id}_hq_barcodes.csv"), path("${sample_id}_mapped_reads.csv"), path("${sample_id}_mapped_reads_filtered.csv"), emit: csv
 
     script:
     """

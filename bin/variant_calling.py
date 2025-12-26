@@ -36,7 +36,7 @@ def extract_sequences(file_path, barcode, orf, translate_barcode):
 
     with dnaio.open(file_path, mode="r") as reader:
         for record in reader:
-            cluster_id = record.name
+            barcode_id = record.name
             sequence = record.sequence
 
             # Search for barcodes
@@ -54,7 +54,7 @@ def extract_sequences(file_path, barcode, orf, translate_barcode):
 
                 if orf_start_match and orf_end_match and is_in_frame(orf_start_match, orf_end_match):
                     orf_sequence = extract_subsequence(sequence, orf_start_match, orf_end_match)
-                    sequences[cluster_id] = (barcode_sequence, orf_sequence)
+                    sequences[barcode_id] = (barcode_sequence, orf_sequence)
 
     return sequences
 
@@ -102,7 +102,7 @@ def get_variants(sequences, reference, translate_barcode):
         translate_barcode (bool): Translate DNA barcodes, used for flycodes.
 
     Returns:
-       pl.DataFrame: Contains cluster_ID, barcode, amino acid change position, reference amino acid, variant amino acid and variant type.
+       pl.DataFrame: Contains barcode_id, barcode, amino acid change position, reference amino acid, variant amino acid and variant type.
     """
     data = []
 
@@ -115,7 +115,7 @@ def get_variants(sequences, reference, translate_barcode):
     reference_orf_aa = translate(reference_sequence[1])
 
     # Looping through all sequences
-    for cluster_id, (barcode_nt, orf_nt) in sequences.items():
+    for barcode_id, (barcode_nt, orf_nt) in sequences.items():
         if (translate_barcode):
             barcode = translate(barcode_nt)
         else:
@@ -125,7 +125,7 @@ def get_variants(sequences, reference, translate_barcode):
 
         if (len(orf_aa) != len(reference_orf_aa)):
             data.append({
-                "cluster_id": cluster_id,
+                "barcode_id": barcode_id,
                 "barcode": barcode,
                 "variant_type": "indel",
                 "position": None,
@@ -136,7 +136,7 @@ def get_variants(sequences, reference, translate_barcode):
 
         if (orf_aa == reference_orf_aa):
             data.append({
-                "cluster_id": cluster_id,
+                "barcode_id": barcode_id,
                 "barcode": barcode,
                 "variant_type": "wt",
                 "position": None,
@@ -148,7 +148,7 @@ def get_variants(sequences, reference, translate_barcode):
         if (orf_aa != reference_orf_aa):
             orf_aa_changes = compare_aa_sequences(orf_aa, reference_orf_aa)
             data.extend({
-                "cluster_id": cluster_id,
+                "barcode_id": barcode_id,
                 "barcode": barcode,
                 "variant_type": "change",
                 "position": pos,

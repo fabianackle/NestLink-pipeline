@@ -9,7 +9,7 @@ process DUCKDB {
     publishDir params.outdir, mode: 'copy'
 
     input:
-    tuple val(sample_id), path(reads_csv), path(clusters_csv), path(mapped_reads_csv), path(mapped_reads_filtered_csv), path(variants_csv)
+    tuple val(sample_id), path(reads_csv), path(hq_barcodes_csv), path(mapped_reads_csv), path(mapped_reads_filtered_csv), path(variants_csv)
 
     output:
     tuple val(sample_id), path("${sample_id}.db"), emit: database
@@ -26,27 +26,27 @@ process DUCKDB {
             'is_valid_barcode ': 'BOOLEAN'
         });
 
-    CREATE TABLE clusters AS
-    FROM read_csv('${clusters_csv}',
+    CREATE TABLE hq_barcodes AS
+    FROM read_csv('${hq_barcodes_csv}',
         columns = {
-            'cluster_id': 'UUID',
+            'barcode_id': 'UUID',
             'barcode': 'VARCHAR'
         });
 
-    CREATE TABLE mapped_reads AS
+    CREATE TABLE reads_mapped AS
     FROM read_csv('${mapped_reads_csv}',
         columns = {
             'read_id': 'UUID',
-            'cluster_id': 'UUID',
+            'barcode_id': 'UUID',
             'cigar': 'VARCHAR',
             'edit_distance': UINT8
         });
 
-    CREATE TABLE mapped_reads_filtered AS
+    CREATE TABLE reads_mapped_filtered AS
     FROM read_csv('${mapped_reads_filtered_csv}',
         columns = {
             'read_id': 'UUID',
-            'cluster_id': 'UUID',
+            'barcode_id': 'UUID',
             'cigar': 'VARCHAR',
             'edit_distance': UINT8
         });
@@ -54,7 +54,7 @@ process DUCKDB {
     CREATE TABLE variants AS
     FROM read_csv('${variants_csv}',
         columns = {
-            'cluster_id': 'UUID',
+            'barcode_id': 'UUID',
             'barcode': 'VARCHAR',
             'variant_type': VARCHAR,
             'position': 'UINT16',
@@ -62,12 +62,12 @@ process DUCKDB {
             'variant_aa': 'VARCHAR'
         });
 
-    CREATE VIEW barcodes AS
+    CREATE VIEW reads_summary AS
     FROM reads
-    JOIN mapped_reads USING(read_id);
+    JOIN reads_mapped USING(read_id);
 
     -- Variant summary: barcodes per variant, reads per variant, reads per barcode
-    CREATE VIEW variant_summary AS
+    CREATE VIEW variants_summary AS
     SELECT
         "position",
         reference_aa || "position" || variant_aa AS variant,
@@ -75,7 +75,7 @@ process DUCKDB {
         COUNT(read_id) AS reads,
         COUNT(read_id) / COUNT(DISTINCT barcode) AS reads_per_barcode
     FROM variants
-    JOIN mapped_reads USING (cluster_id)
+    JOIN reads_mapped USING (barcode_id)
     WHERE
         variant_type = 'change'
     GROUP BY

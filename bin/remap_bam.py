@@ -12,8 +12,8 @@ def main(barcode_map, input_bam):
     with open(barcode_map, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         rows = list(reader)
-        qname_to_rname = {row['read_id']: row['cluster_id'] for row in rows}  # dict mapping qname to rname
-        rnames = {row['cluster_id'] for row in rows}                          # uniqe rnames
+        qname_to_rname = {row['read_id']: row['barcode_id'] for row in rows}  # dict mapping qname to rname
+        rnames = {row['barcode_id'] for row in rows}                          # uniqe rnames
 
     with pysam.AlignmentFile(input_bam, "rb") as bam_in:
         header_dict = bam_in.header.to_dict()
